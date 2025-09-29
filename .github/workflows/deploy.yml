@@ -10,23 +10,28 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    # ------------------ Получаем код ------------------
     - name: Checkout repository
       uses: actions/checkout@v3
 
-    # ------------------ Фронтенд ------------------
+    # ------------------ Собираем фронтенд ------------------
     - name: Build frontend
       run: |
-        mkdir -p services/frontend/dist
-        cp services/frontend/build/* services/frontend/dist/
-    
+        cd services/frontend
+        npm install
+        npm run build
+        mkdir -p dist
+        cp -r build/* dist/
+      working-directory: ./services/frontend
+
     # ------------------ Установка Ansible ------------------
-    - name: Install Ansible
+    - name: Install Ansible and sshpass
       run: |
         sudo apt update
         sudo apt install -y ansible sshpass
 
-    # ------------------ Развертывание через Ansible ------------------
-    - name: Run Ansible Playbook
+    # ------------------ Деплой через Ansible ------------------
+    - name: Deploy with Ansible
       uses: appleboy/ssh-action@v0.1.5
       with:
         host: ${{ secrets.SSH_HOST }}
@@ -36,3 +41,22 @@ jobs:
           cd ~/repo-root
           ansible-playbook -i inventory/hosts.ini playbooks/site.yml
 
+    # ------------------ Проверка Backend ------------------
+    - name: Check backend
+      uses: appleboy/ssh-action@v0.1.5
+      with:
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USER }}
+        key: ${{ secrets.SSH_KEY }}
+        script: |
+          curl --fail http://127.0.0.1:8000/api/hello || exit 1
+
+    # ------------------ Проверка Frontend ------------------
+    - name: Check frontend
+      uses: appleboy/ssh-action@v0.1.5
+      with:
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USER }}
+        key: ${{ secrets.SSH_KEY }}
+        script: |
+          curl --fail http://127.0.0.1/ || exit 1
