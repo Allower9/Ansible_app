@@ -1,13 +1,14 @@
 - hosts: all
-become: true
-vars:
-app_user: webapp
-app_dir: /opt/webapp
-domain: example.com # заменить на ваш домен
-frontend_build_dir: /opt/webapp/frontend_build
-roles:
-- common
-- postgres
-- backend
-- frontend
-- nginx
+  become: true
+  vars:
+    app_user: webapp
+    app_dir: /opt/webapp
+    domain: 89.169.172.126    # замените на ваш домен или IP
+    frontend_build_dir: /opt/webapp/frontend_build
+  roles:
+    - common
+    - postgres
+    - backend
+    - frontend
+    - nginx
+

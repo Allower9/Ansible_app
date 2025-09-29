@@ -1,25 +1,23 @@
 - name: Install nginx
-apt:
-name: nginx
-state: present
+  apt:
+    name: nginx
+    state: present
 
-
-- name: Ensure sites-enabled link
-file:
-src: /etc/nginx/sites-available/webapp.conf
-dest: /etc/nginx/sites-enabled/webapp.conf
-state: link
-force: yes
-
+- name: Enable webapp site
+  file:
+    src: /etc/nginx/sites-available/webapp.conf
+    dest: /etc/nginx/sites-enabled/webapp.conf
+    state: link
+    force: yes
 
 - name: Remove default site
-file:
-path: /etc/nginx/sites-enabled/default
-state: absent
+  file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
 
+- name: Ensure nginx is running
+  service:
+    name: nginx
+    state: started
+    enabled: yes
 
-- name: Ensure nginx running
-service:
-name: nginx
-state: started
-enabled: yes

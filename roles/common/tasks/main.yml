@@ -1,10 +1,16 @@
 - name: Update apt cache
-apt:
-update_cache: yes
-cache_valid_time: 3600
-
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
 
 - name: Ensure basic packages
-apt:
-name: ['python3','python3-venv','python3-pip','git','curl','build-essential']
-state: present
+  apt:
+    name:
+      - python3
+      - python3-venv
+      - python3-pip
+      - git
+      - curl
+      - build-essential
+    state: present
+
