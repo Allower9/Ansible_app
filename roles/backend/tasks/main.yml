@@ -1,0 +1,56 @@
+- name: Create app user
+user:
+name: "{{ app_user }}"
+system: yes
+create_home: no
+
+
+- name: Create app dir
+file:
+path: "{{ app_dir }}"
+state: directory
+owner: "{{ app_user }}"
+group: "{{ app_user }}"
+mode: '0755'
+
+
+- name: Copy backend code
+synchronize:
+src: ./services/backend/
+dest: "{{ app_dir }}/backend/"
+rsync_opts:
+- "--delete"
+delegate_to: localhost
+
+
+- name: Create Python venv
+command: python3 -m venv {{ app_dir }}/venv
+args:
+creates: "{{ app_dir }}/venv/bin/activate"
+
+
+- name: Install backend requirements
+pip:
+requirements: "{{ app_dir }}/backend/requirements.txt"
+virtualenv: "{{ app_dir }}/venv"
+
+
+- name: Create systemd service for backend
+template:
+src: backend.service.j2
+dest: /etc/systemd/system/webapp.service
+notify: restart webapp
+
+
+- name: Ensure webapp started
+systemd:
+name: webapp
+enabled: yes
+state: started
+
+
+handlers:
+- name: restart webapp
+systemd:
+name: webapp
+state: restarted

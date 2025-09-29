@@ -1,0 +1,13 @@
+- hosts: all
+become: true
+vars:
+app_user: webapp
+app_dir: /opt/webapp
+domain: example.com # заменить на ваш домен
+frontend_build_dir: /opt/webapp/frontend_build
+roles:
+- common
+- postgres
+- backend
+- frontend
+- nginx

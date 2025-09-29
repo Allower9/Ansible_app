@@ -1,0 +1,29 @@
+- name: Ensure frontend target dir exists
+file:
+path: "{{ frontend_build_dir }}"
+state: directory
+owner: "{{ app_user }}"
+mode: '0755'
+
+
+- name: Deploy frontend build (copy static files built in CI)
+synchronize:
+src: ./dist_frontend_build/
+dest: "{{ frontend_build_dir }}"
+rsync_opts:
+- "--delete"
+delegate_to: localhost
+
+
+- name: Ensure nginx site points to frontend build
+template:
+src: nginx.conf.j2
+dest: /etc/nginx/sites-available/webapp.conf
+notify: reload nginx
+
+
+handlers:
+- name: reload nginx
+service:
+name: nginx
+state: reloaded

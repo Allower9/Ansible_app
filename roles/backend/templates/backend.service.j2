@@ -1,0 +1,16 @@
+[Unit]
+Description=WebApp (gunicorn)
+After=network.target
+
+
+[Service]
+User={{ app_user }}
+Group={{ app_user }}
+WorkingDirectory={{ app_dir }}/backend
+Environment="PATH={{ app_dir }}/venv/bin"
+ExecStart={{ app_dir }}/venv/bin/gunicorn -w 3 -b 127.0.0.1:8000 wsgi:app
+Restart=on-failure
+
+
+[Install]
+WantedBy=multi-user.target

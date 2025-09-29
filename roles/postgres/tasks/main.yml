@@ -1,0 +1,24 @@
+- name: Install PostgreSQL
+apt:
+name: postgresql
+state: present
+update_cache: yes
+
+
+- name: Ensure DB user and database
+become_user: postgres
+vars:
+db_name: webapp_db
+db_user: webapp
+db_pass: secret_password_here
+block:
+- name: Create DB user
+postgresql_user:
+name: "{{ db_user }}"
+password: "{{ db_pass }}"
+state: present
+- name: Create DB
+postgresql_db:
+name: "{{ db_name }}"
+owner: "{{ db_user }}"
+state: present
