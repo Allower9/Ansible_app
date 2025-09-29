@@ -5,16 +5,20 @@
     update_cache: yes
 
 - name: Ensure DB user
-  become_user: postgres
-  postgresql_user:
+  community.postgresql.postgresql_user:
     name: webapp
     password: secret_password_here
     state: present
+    login_user: postgres
+    login_password: your_postgres_root_password
+    login_host: 127.0.0.1
 
 - name: Ensure DB
-  become_user: postgres
-  postgresql_db:
+  community.postgresql.postgresql_db:
     name: webapp_db
     owner: webapp
     state: present
+    login_user: postgres
+    login_password: your_postgres_root_password
+    login_host: 127.0.0.1
 

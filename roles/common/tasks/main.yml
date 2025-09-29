@@ -3,7 +3,7 @@
     update_cache: yes
     cache_valid_time: 3600
 
-- name: Ensure basic packages
+- name: Ensure basic packages are installed
   apt:
     name:
       - python3
@@ -12,5 +12,6 @@
       - git
       - curl
       - build-essential
+      - python3-psycopg2   # нужно для community.postgresql
     state: present
 

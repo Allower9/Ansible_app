@@ -1,21 +1,33 @@
+---
 - name: Ensure frontend target dir exists
-  file:
+  ansible.builtin.file:
     path: "{{ frontend_build_dir }}"
     state: directory
     owner: "{{ app_user }}"
+    group: "{{ app_user }}"
     mode: '0755'
 
 - name: Deploy frontend build (copy static files built in CI)
-  synchronize:
-    src: ./dist_frontend_build/
+  ansible.builtin.synchronize:
+    src: "{{ playbook_dir }}/../services/frontend/build/"
     dest: "{{ frontend_build_dir }}"
+    recursive: yes
     rsync_opts:
       - "--delete"
   delegate_to: localhost
 
+- name: Ensure nginx sites-available directory exists
+  ansible.builtin.file:
+    path: /etc/nginx/sites-available
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
 - name: Ensure nginx site config is present
-  template:
-    src: nginx.conf.j2
+  ansible.builtin.template:
+    src: "{{ playbook_dir }}/../roles/nginx/templates/nginx.conf.j2"
     dest: /etc/nginx/sites-available/webapp.conf
-  notify: reload nginx
+  notify:
+    - reload nginx
 

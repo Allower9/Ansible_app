@@ -13,12 +13,12 @@
     mode: '0755'
 
 - name: Copy backend code
-  synchronize:
-    src: ./services/backend/
+  ansible.builtin.synchronize:
+    src: "{{ playbook_dir }}/../services/backend/"
     dest: "{{ app_dir }}/backend/"
-    rsync_opts:
-      - "--delete"
-  delegate_to: localhost
+    recursive: yes
+    delete: yes
+
 
 - name: Create Python venv
   command: python3 -m venv {{ app_dir }}/venv
