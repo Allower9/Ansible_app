@@ -14,20 +14,20 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
 
-    # ------------------ Prepare Frontend ------------------
-    - name: Prepare frontend
+    # ------------------ Build Frontend ------------------
+    - name: Build frontend
       run: |
-        echo "Copying pre-built frontend into dist folder..."
-        mkdir -p services/frontend/dist
-        cp -r services/frontend/build/* services/frontend/dist/
+        echo "Building frontend..."
+        mkdir -p services/frontend/build
+        cp -r services/frontend/src/* services/frontend/build/
 
     # ------------------ Install Ansible ------------------
     - name: Install Ansible and SSH tools
       run: |
         sudo apt update
-        sudo apt install -y ansible sshpass
+        sudo apt install -y ansible sshpass rsync
 
-    # ------------------ Run Ansible Playbook ------------------
+    # ------------------ Deploy via Ansible ------------------
     - name: Deploy to server
       uses: appleboy/ssh-action@v0.1.5
       with:

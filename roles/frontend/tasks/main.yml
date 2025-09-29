@@ -9,11 +9,10 @@
 
 - name: Deploy frontend build (copy static files built in CI)
   ansible.builtin.synchronize:
-    src: "{{ playbook_dir }}/../services/frontend/build/"
+    src: "{{ playbook_dir }}/../../services/frontend/build/"
     dest: "{{ frontend_build_dir }}"
     recursive: yes
-    rsync_opts:
-      - "--delete"
+    delete: yes   # удаляем старые файлы, чтобы не было мусора
   delegate_to: localhost
 
 - name: Ensure nginx sites-available directory exists
@@ -26,7 +25,7 @@
 
 - name: Ensure nginx site config is present
   ansible.builtin.template:
-    src: "{{ playbook_dir }}/../roles/nginx/templates/nginx.conf.j2"
+    src: "{{ playbook_dir }}/../nginx/templates/nginx.conf.j2"
     dest: /etc/nginx/sites-available/webapp.conf
   notify:
     - reload nginx
