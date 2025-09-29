@@ -14,12 +14,11 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
 
-    # ------------------ Build Frontend ------------------
-    - name: Build frontend
+    # ------------------ Prepare frontend ------------------
+    - name: Prepare frontend
       run: |
-        echo "Building frontend..."
-        mkdir -p services/frontend/build
-        cp -r services/frontend/src/* services/frontend/build/
+        echo "Frontend build already exists, copying..."
+        ls -l services/frontend/build
 
     # ------------------ Install Ansible ------------------
     - name: Install Ansible and SSH tools
