@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>My SPA</title>
+</head>
+<body>
+  <h1>Привет, это фронтенд!</h1>
+  <script>
+    fetch('/api/hello')
+      .then(res => res.json())
+      .then(data => console.log(data));
+  </script>
+</body>
+</html>
+

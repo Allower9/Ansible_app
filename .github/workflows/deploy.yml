@@ -1,62 +1,38 @@
-name: CI/CD — build & deploy
-
+name: CI/CD Deploy
 
 on:
-push:
-branches: [ main ]
-
+  push:
+    branches:
+      - main
 
 jobs:
-build-and-deploy:
-runs-on: ubuntu-latest
+  build-and-deploy:
+    runs-on: ubuntu-latest
 
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
 
-steps:
-- name: Checkout
-uses: actions/checkout@v4
+    # ------------------ Фронтенд ------------------
+    - name: Build frontend
+      run: |
+        mkdir -p services/frontend/dist
+        cp services/frontend/build/* services/frontend/dist/
+    
+    # ------------------ Установка Ansible ------------------
+    - name: Install Ansible
+      run: |
+        sudo apt update
+        sudo apt install -y ansible sshpass
 
+    # ------------------ Развертывание через Ansible ------------------
+    - name: Run Ansible Playbook
+      uses: appleboy/ssh-action@v0.1.5
+      with:
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USER }}
+        key: ${{ secrets.SSH_KEY }}
+        script: |
+          cd ~/repo-root
+          ansible-playbook -i inventory/hosts.ini playbooks/site.yml
 
-- name: Set up Node (for frontend build)
-uses: actions/setup-node@v4
-with:
-node-version: '18'
-
-
-- name: Install frontend deps & build
-working-directory: ./services/frontend
-run: |
-npm ci
-npm run build
-
-
-- name: Prepare artifact to copy
-run: |
-rm -rf dist_frontend_build || true
-mkdir -p dist_frontend_build
-cp -r services/frontend/build/* dist_frontend_build/
-
-
-- name: Set up Python & Ansible
-uses: actions/setup-python@v4
-with:
-python-version: '3.11'
-
-
-- name: Install Ansible and rsync
-run: |
-python -m pip install --upgrade pip
-pip install ansible==8.9.0
-sudo apt-get update && sudo apt-get install -y rsync
-
-
-- name: Add SSH key
-uses: webfactory/ssh-agent@v0.6.0
-with:
-ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-
-
-- name: Run Ansible playbook
-env:
-ANSIBLE_HOST_KEY_CHECKING: 'False'
-run: |
-ansible-playbook -i inventory/hosts.ini playbooks/site.yml --ssh-extra-args='-o StrictHostKeyChecking=no'
